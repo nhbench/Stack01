@@ -16,14 +16,20 @@
  * Prompt the user for infix text and display the
  * equivalent postfix expression
  *****************************************************/
-void testInfixToPostfix();
+void testInfixToPostfix()
+{
+
+}
 
 /*****************************************************
  * TEST INFIX TO ASSEMBLY
  * Prompt the user for infix text and display the
  * resulting assembly instructions
  *****************************************************/
-void testInfixToAssembly();
+void testInfixToAssembly()
+{
+
+}
 
 #endif // INFIX_H
 
