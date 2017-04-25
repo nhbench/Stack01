@@ -14,8 +14,10 @@
 
 #ifndef STACK_H
 #define STACK_H
+#define NULL 0
 
 #include <cassert>
+#include <new>
 
 // forward declaration for StackIterator
 template <class T>
@@ -227,7 +229,31 @@ void Stack <T> :: push(const T & t) throw (const char *)
 template<class T>
 inline Stack<T>& Stack<T>::pop() throw(const char *)
 {
-	// TODO: insert return statement here
+	try
+	{
+		// Create a temporary array, but if it fails
+		// we don't want any changes to vCapacity or numItems
+		T* tempArray = new T[(vCapacity - 1)];
+
+		// copy
+		for (int i = 0; i < (numItems - 1); i++)
+		{
+			tempArray[i] = data[i];
+		}
+
+		// free memory
+		delete[] data;
+
+		// point to tempArray
+		data = tempArray;
+		// Success! Now we can lower numItems and vCapacity for good.
+		numItems--;
+		vCapacity--;
+	}
+	catch (std::bad_alloc)
+	{
+		throw "ERROR: Unable to allocate a new buffer for Stack";
+	}
 }
 
 /***************************************************
@@ -237,7 +263,11 @@ inline Stack<T>& Stack<T>::pop() throw(const char *)
 template<class T>
 inline Stack<T>& Stack<T>::top() throw(const char *)
 {
-	// TODO: insert return statement here
+	// if empty: throw Unable to reference the element from an empty Stack
+	if (empty())
+		throw "ERROR: Unable to reference the element from an empty Stack";
+	else
+		return data[numItems];
 }
 
 /***************************************************
