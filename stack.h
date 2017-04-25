@@ -1,49 +1,51 @@
 /***********************************************************************
 * Header:
-*    Vector
+*    Stack
 * Summary:
-*    This class contains the notion of a vector: a container
+*    This class contains the notion of a stack: a container
 *    that expands as more items are put inside.
 *
 *    This will contain the class definition of:
-*        Vector         : A class that holds stuff
-*        VectorIterator : An interator through Vector
+*        Stack         : A class that holds stuff
+*        StackIterator : An interator through Stack
 * Author
 *    Nathan Bench
 ************************************************************************/
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef STACK_H
+#define STACK_H
+#define NULL 0
 
 #include <cassert>
+#include <new>
 
-// forward declaration for VectorIterator
+// forward declaration for StackIterator
 template <class T>
-class VectorIterator;
+class StackIterator;
 
-// forward declaration for VectorConstIterator
+// forward declaration for StackConstIterator
 template <class T>
-class VectorConstIterator;
+class StackConstIterator;
 
 /************************************************
- * VECTOR
+ * STACK
  * A class that holds stuff
  ***********************************************/
 template <class T>
-class Vector
+class Stack
 {
 public:
    // default constructor : empty and kinda useless
-   Vector() : numItems(0), vCapacity(0), data(NULL) {}
+   Stack() : numItems(0), vCapacity(0), data(NULL) {}
 
    // copy constructor : copy it
-   Vector(const Vector & rhs) throw (const char *);
+   Stack(const Stack & rhs) throw (const char *);
    
    // non-default constructor : pre-allocate
-   Vector(int capacity) throw (const char *);
+   Stack(int capacity) throw (const char *);
    
    // destructor : free everything
-   ~Vector()        { if (vCapacity) delete [] data; }
+   ~Stack()        { if (vCapacity) delete [] data; }
    
    // is the container currently empty
    bool empty() const  { return numItems == 0;         }
@@ -51,46 +53,52 @@ public:
    // remove all the items from the container
    void clear()        { numItems = 0;                 }
 
-   // how many items can the vector currently contain?
+   // how many items can the stack currently contain?
    int capacity() const { return vCapacity;             }
    
    // how many items are currently in the container?
    int size() const    { return numItems;              }
 
    // add an item to the container
-   void push_back(const T & t) throw (const char *);
+   void push(const T & t) throw (const char *);
+
+   // Removes an item from the end of the stack, and reduces size by one
+   Stack<T> & pop() throw (const char *);
+
+   // Returns the item currently at the end of the stack
+   Stack<T> & top() throw (const char *);
    
    // look up an item using the array index operator '[]'
    T & operator [] (int index) throw (const char *);
    const T & operator [] (int index) const throw (const char *);
    
    // assignment operator '='
-   Vector<T> & operator = (const Vector <T> & rhs);
+   Stack<T> & operator = (const Stack <T> & rhs);
    
-   // return an iterator to the beginning of the vector
-   VectorIterator <T> begin() { return VectorIterator<T>(data); }
+   // return an iterator to the beginning of the stack
+   StackIterator <T> begin() { return StackIterator<T>(data); }
 
-   // return an iterator to the end of the vector
-   VectorIterator <T> end() { return VectorIterator<T>(data + numItems);}
+   // return an iterator to the end of the stack
+   StackIterator <T> end() { return StackIterator<T>(data + numItems);}
    
-   // return a constant iterator to the beginning of the vector
-   VectorConstIterator <T> cbegin() const { return VectorConstIterator<T>(data); }
+   // return a constant iterator to the beginning of the stack
+   StackConstIterator <T> cbegin() const { return StackConstIterator<T>(data); }
    
-   // return a constant iterator to the end of the vector
-   VectorConstIterator <T> cend() const   { return VectorConstIterator<T>(data + numItems); }
+   // return a constant iterator to the end of the stack
+   StackConstIterator <T> cend() const   { return StackConstIterator<T>(data + numItems); }
    
 private:
    T * data;          // dynamically allocated array of T
-   int numItems;      // how many items are currently in the Vector?
-   int vCapacity;      // how many items can I put on the Vector before full?
+   int numItems;      // how many items are currently in the Stack?
+   int vCapacity;      // how many items can I put on the Stack before full?
 };
 
 
 /*******************************************
- * VECTOR :: COPY CONSTRUCTOR
+ * STACK :: COPY CONSTRUCTOR
  *******************************************/
 template <class T>
-Vector <T> :: Vector(const Vector <T> & rhs) throw (const char *)
+Stack <T> :: Stack(const Stack <T> & rhs) throw (const char *)
 {
    assert(rhs.vCapacity >= 0);
       
@@ -127,11 +135,11 @@ Vector <T> :: Vector(const Vector <T> & rhs) throw (const char *)
 }
 
 /**********************************************
- * VECTOR : NON-DEFAULT CONSTRUCTOR
+ * STACK : NON-DEFAULT CONSTRUCTOR
  * Preallocate the container to "capacity"
  **********************************************/
 template <class T>
-Vector <T> :: Vector(int capacity) throw (const char *)
+Stack <T> :: Stack(int capacity) throw (const char *)
 {
    assert(capacity >= 0);
    
@@ -164,11 +172,11 @@ Vector <T> :: Vector(int capacity) throw (const char *)
 }
 
 /***************************************************
- * VECTOR :: PUSH BACK
+ * STACK :: PUSH
  * Insert an item on the end of the container
  **************************************************/
 template <class T>
-void Vector <T> :: push_back(const T & t) throw (const char *)
+void Stack <T> :: push(const T & t) throw (const char *)
 {
    // IF capacity == 0
    if (vCapacity == 0)
@@ -180,7 +188,7 @@ void Vector <T> :: push_back(const T & t) throw (const char *)
       }
       catch (std::bad_alloc)
       {
-         throw "ERROR: unable to allocate a new buffer for Vector";
+         throw "ERROR: unable to allocate a new buffer for Stack";
       }
    }
    
@@ -206,7 +214,7 @@ void Vector <T> :: push_back(const T & t) throw (const char *)
       }
       catch (std::bad_alloc)
       {
-         throw "ERROR: Unable to allocate a new buffer for Vector";
+         throw "ERROR: Unable to allocate a new buffer for Stack";
       }
    }
    
@@ -215,11 +223,59 @@ void Vector <T> :: push_back(const T & t) throw (const char *)
 }
 
 /***************************************************
- * VECTOR :: []
+* STACK :: POP
+* Removes an item from the end of the stack, and reduces size by one
+**************************************************/
+template<class T>
+inline Stack<T>& Stack<T>::pop() throw(const char *)
+{
+	try
+	{
+		// Create a temporary array, but if it fails
+		// we don't want any changes to vCapacity or numItems
+		T* tempArray = new T[(vCapacity - 1)];
+
+		// copy
+		for (int i = 0; i < (numItems - 1); i++)
+		{
+			tempArray[i] = data[i];
+		}
+
+		// free memory
+		delete[] data;
+
+		// point to tempArray
+		data = tempArray;
+		// Success! Now we can lower numItems and vCapacity for good.
+		numItems--;
+		vCapacity--;
+	}
+	catch (std::bad_alloc)
+	{
+		throw "ERROR: Unable to allocate a new buffer for Stack";
+	}
+}
+
+/***************************************************
+* STACK :: TOP
+* Returns the item currently at the end of the stack
+**************************************************/
+template<class T>
+inline Stack<T>& Stack<T>::top() throw(const char *)
+{
+	// if empty: throw Unable to reference the element from an empty Stack
+	if (empty())
+		throw "ERROR: Unable to reference the element from an empty Stack";
+	else
+		return data[numItems];
+}
+
+/***************************************************
+ * STACK :: []
  * Overload array index operator
  **************************************************/
 template <class T>
-T & Vector<T> :: operator [] (int index) throw (const char *)
+T & Stack<T> :: operator [] (int index) throw (const char *)
 {
    // return if index valid
    if (index >= 0 && index < numItems)
@@ -229,11 +285,11 @@ T & Vector<T> :: operator [] (int index) throw (const char *)
 }
 
 /***************************************************
- * VECTOR :: [] const
+ * STACK :: [] const
  * Overload array index operator
  **************************************************/
 template <class T>
-const T & Vector <T> :: operator [] (int index) const throw (const char *)
+const T & Stack <T> :: operator [] (int index) const throw (const char *)
 {
    // return if index valid
    if (index >= 0 && index < numItems)
@@ -243,11 +299,11 @@ const T & Vector <T> :: operator [] (int index) const throw (const char *)
 }
 
 /***************************************************
- * VECTOR :: =
+ * STACK :: =
  * Overload assignment operator
  **************************************************/
  template <class T>
-Vector<T> & Vector <T> :: operator = (const Vector <T> & rhs)
+Stack<T> & Stack <T> :: operator = (const Stack <T> & rhs)
 {
    // don't copy yourself
    if (this != &rhs)
@@ -267,7 +323,7 @@ Vector<T> & Vector <T> :: operator = (const Vector <T> & rhs)
       }
       catch (std::bad_alloc)
       {
-         throw "ERROR: Unable to allocate a new buffer for Vector";
+         throw "ERROR: Unable to allocate a new buffer for Stack";
       }
       // copy over values from rhs
       for (int i = 0; i < rhs.numItems; i++)
@@ -279,5 +335,5 @@ Vector<T> & Vector <T> :: operator = (const Vector <T> & rhs)
    }
 }
 
-#endif // VECTOR_H
+#endif // STACK_H
 
