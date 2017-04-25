@@ -14,7 +14,6 @@
 
 #ifndef STACK_H
 #define STACK_H
-#define NULL 0
 
 #include <cassert>
 #include <new>
@@ -59,14 +58,17 @@ public:
    // how many items are currently in the container?
    int size() const    { return numItems;              }
 
+   // increase the capacity
+   void increaseCapacity();
+
    // add an item to the container
    void push(const T & t) throw (const char *);
 
    // Removes an item from the end of the stack, and reduces size by one
-   Stack<T> & pop() throw (const char *);
+   void pop() throw (const char *);
 
    // Returns the item currently at the end of the stack
-   Stack<T> & top() throw (const char *);
+   T & top() throw (const char *);
    
    // look up an item using the array index operator '[]'
    T & operator [] (int index) throw (const char *);
@@ -171,55 +173,51 @@ Stack <T> :: Stack(int capacity) throw (const char *)
       data[i] = T();
 }
 
-/***************************************************
- * STACK :: PUSH
- * Insert an item on the end of the container
- **************************************************/
-template <class T>
-void Stack <T> :: push(const T & t) throw (const char *)
+/******************************
+* INCREASE CAPACITY:
+* This is used in conjunction
+* with the push_back function
+* to increase the capacity of
+* the stack if the space is
+* insufficient.
+*******************************/
+template<class T>
+void Stack<T>::increaseCapacity()
 {
-   // IF capacity == 0
-   if (vCapacity == 0)
-   {
-      vCapacity = 1;
-      try
-      {
-         data = new T[vCapacity];
-      }
-      catch (std::bad_alloc)
-      {
-         throw "ERROR: unable to allocate a new buffer for Stack";
-      }
-   }
-   
-   // IF max capacity AND numItems is not less than 0
-   if (vCapacity == numItems && numItems > 0)
-   {
-      vCapacity *= 2;
-      try
-      {
-         T* tempArray = new T[vCapacity];
-         
-         // copy
-         for (int i = 0; i < numItems; i++)
-         {
-            tempArray[i] = data[i];
-         }
+	int newCap = vCapacity * 2;
+	if (vCapacity == 0)
+		newCap = 1;
+	T *temp = new T[newCap];
+	for (int i = 0; i < vCapacity; ++i)
+	{
+		temp[i] = data[i];
+	}
+	vCapacity = newCap;
+	delete[] data;
+	data = temp;
+}
 
-         // free memory
-         delete[] data;
-
-         // point to tempArray
-         data = tempArray;
-      }
-      catch (std::bad_alloc)
-      {
-         throw "ERROR: Unable to allocate a new buffer for Stack";
-      }
-   }
-   
-   // add an item to the end
-   data[numItems++] = t;
+/******************************
+* Adds an element to the end
+* of the stack and returns nothing.
+* If the stack is currently empty, then
+* the capacity is set to one. Otherwise,
+* if the stack is currently full,
+* then the capacity is doubled.
+*******************************/
+template<class T>
+void Stack<T>::push(const T & t) throw (const char *)
+{
+	if (empty())
+	{
+		increaseCapacity();
+	}
+	if (vCapacity <= numItems)
+	{
+		increaseCapacity();
+	}
+	data[numItems] = t;
+	numItems++;
 }
 
 /***************************************************
@@ -227,33 +225,11 @@ void Stack <T> :: push(const T & t) throw (const char *)
 * Removes an item from the end of the stack, and reduces size by one
 **************************************************/
 template<class T>
-inline Stack<T>& Stack<T>::pop() throw(const char *)
+inline void Stack<T>::pop() throw(const char *)
 {
-	try
-	{
-		// Create a temporary array, but if it fails
-		// we don't want any changes to vCapacity or numItems
-		T* tempArray = new T[(vCapacity - 1)];
-
-		// copy
-		for (int i = 0; i < (numItems - 1); i++)
-		{
-			tempArray[i] = data[i];
-		}
-
-		// free memory
-		delete[] data;
-
-		// point to tempArray
-		data = tempArray;
-		// Success! Now we can lower numItems and vCapacity for good.
-		numItems--;
-		vCapacity--;
-	}
-	catch (std::bad_alloc)
-	{
-		throw "ERROR: Unable to allocate a new buffer for Stack";
-	}
+	if (empty())
+		throw "ERROR: Unable to pop from an empty Stack";
+	numItems--;
 }
 
 /***************************************************
@@ -261,13 +237,14 @@ inline Stack<T>& Stack<T>::pop() throw(const char *)
 * Returns the item currently at the end of the stack
 **************************************************/
 template<class T>
-inline Stack<T>& Stack<T>::top() throw(const char *)
+inline T & Stack<T>::top() throw(const char *)
 {
 	// if empty: throw Unable to reference the element from an empty Stack
-	if (empty())
+	if (empty() || (numItems < 0))
 		throw "ERROR: Unable to reference the element from an empty Stack";
-	else
-		return data[numItems];
+	int j = numItems - 1;
+	return data[j];
+	numItems++;
 }
 
 /***************************************************
