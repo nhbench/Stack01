@@ -9,7 +9,7 @@
 *        Stack         : A class that holds stuff
 *        StackIterator : An interator through Stack
 * Author
-*    Nathan Bench
+*    Nathan Bench Justin Chandler
 ************************************************************************/
 
 #ifndef STACK_H
