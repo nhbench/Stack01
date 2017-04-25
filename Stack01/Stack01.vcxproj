@@ -118,12 +118,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="infix.cpp" />
-    <ClCompile Include="week02.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="infix.h" />
-    <ClInclude Include="stack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
