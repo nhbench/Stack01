@@ -5,7 +5,7 @@
 *    This will contain just the prototype for the convertInfixToPostfix()
 *    function
 * Author
-*    <your names here>
+*    Justin Chandler, Jeremy Chandler, Nathan Bench
 ************************************************************************/
 
 #ifndef INFIX_H
