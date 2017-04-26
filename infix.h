@@ -11,19 +11,12 @@
 #ifndef INFIX_H
 #define INFIX_H
 
-/*****************************************************
- * TEST INFIX TO POSTFIX
- * Prompt the user for infix text and display the
- * equivalent postfix expression
- *****************************************************/
-void testInfixToPostfix();
+#include <iostream>
+#include "stack.h"
 
-/*****************************************************
- * TEST INFIX TO ASSEMBLY
- * Prompt the user for infix text and display the
- * resulting assembly instructions
- *****************************************************/
+void testInfixToPostfix();
 void testInfixToAssembly();
+
 
 #endif // INFIX_H
 
